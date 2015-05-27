@@ -17,7 +17,7 @@ options(shiny.maxRequestSize=3000*1024^2)
 
 shinyServer(function(input, output, session) {
   
-  values <- reactiveValues(swd = FALSE, csvUploaded = FALSE)
+  values <- reactiveValues()
   
   GBIFsearch <- reactive({
     if (input$goName == 0) return(NULL) 
@@ -35,48 +35,37 @@ shinyServer(function(input, output, session) {
   })
   
   getCSV <- reactive({
-    # if (is.null(input$csvInput)) return(NULL)
+    if (is.null(input$csvInput)) return(NULL)
     x <- read.csv(input$csvInput$datapath, header = TRUE)
     names(x)[2:3] <- c('lon', 'lat')
-    values$spname <- x[1,1]
-    if (length(names(values$df)) > 3) {
-      values$swd <- TRUE
-      values$bg <- x[which(x[,1] != values$spname),]
-    } else {
-      values$swd <- FALSE
-    }
-    values$df <- x[which(x[,1] == values$spname),]  
+    values$df <- x
   })
   
-  output$CSVtxt <- renderUI({
-    if (is.null(input$csvInput)) return()
-    input$csvInput
-    values$csvUploaded <- TRUE
-    getCSV()
-    if (values$swd) {
-      str1 <- "User input [S]pecies [W]ith [D]ata option."
-      str2 <- paste('Total records for', values$spname, '[', nrow(values$df), '].')
-      str3 <- paste('Total background records', '[', nrow(values$bg), '].')
-      return(HTML(paste(str1, str2, str3, sep='<br/>')))
-    } else {
-      return(HTML(paste('Total records for', values$spname, '[', nrow(values$df), '].')))
-    }
-  })
-  
-  output$dataTxt <- renderText(values$dataTxt)
+  output$dataTxt <- renderText({values$dataTxt})
 
-  output$csvUploaded <- reactive({
+  output$fileUploaded <- reactive({
     return(!is.null(getCSV()))
   })
   
-  output$occTbl <- renderTable(values$df)
+  output$gbifSearched <- reactive({
+    return(!is.null(GBIFsearch()))
+  })
+  
+  output$occTbl <- renderTable({values$df})
   
   output$GBIFtxt <- renderText({
     if (input$goName == 0) return()
     input$goName
     out <- GBIFsearch()
-    values$spname <- isolate(input$gbifName)
-    paste('Total records for', values$spname, 'returned [', out[1], '] out of [', out[2], '] total (limit 500).')
+    name <- isolate(input$gbifName)
+    paste('Total records for', name, 'returned [', out[1], '] out of [', out[2], '] total (limit 500).')
+  })
+  
+  output$CSVtxt <- renderText({
+    if (is.null(input$csvInput)) return()
+    getCSV()
+    name <- values$df[1,1]
+    paste('Total records for', name, '[', nrow(values$df), '].')
   })
   
   output$GBIFmap <- renderPlot({
@@ -110,11 +99,10 @@ shinyServer(function(input, output, session) {
         output <- thin(values$df, 'lat', 'lon', 'name', thin.par = input$thinDist, 
                        reps = 10, locs.thinned.list.return = TRUE, write.files = FALSE)
         names(output[[1]]) <- c('lon', 'lat')
-        values$df <- cbind(rep(values$spname, nrow(output[[1]])), output[[1]])
+        values$df <- cbind(rep(values$df[1,1], nrow(output[[1]])), output[[1]])
       })
     })
   })
-  
   
   output$thinText <- renderText({
     if (input$goThin == 0) return()
@@ -130,6 +118,25 @@ shinyServer(function(input, output, session) {
       output$predTxt <- renderText(paste("Loaded", substr(input$pred, 3, nchar(input$pred)), 
                                          "Worldclim bio1-19 predictor rasters."))
     })
+  })
+  
+  loadInputPreds <- reactive({
+    if (is.null(input$predInput)) return()
+    output$test1 <- renderTable(input$predInput)
+    #values$preds <- stack(input$predInput[1,'datapath'])
+    #output$predTxt <- renderText(paste("Loaded", nlayers(values$preds), "input predictor rasters.")) 
+  })
+
+  
+  output$predTxt <- renderText({
+    if (input$pred == " ") return()
+    input$pred
+    if (input$pred == 'inp') {
+      loadInputPreds()
+    } else {
+      loadWC()
+    }
+    return(values$predTxt)
   })
   
   runENMeval <- reactive({
@@ -157,7 +164,14 @@ shinyServer(function(input, output, session) {
     runENMeval()
     paste("Ran ENMeval and output table with", nrow(values$evalTbl), "rows.")
   })
+  
+#   output$thinConsole <- renderPrint({
+#     if (input$goThin == 0) return()
+#     input$goThin
+#     isolate({values[["log"]] <- capture.output(runThin())})
+#     return(print(values[["log"]]))
+#   })
 
-  outputOptions(output, 'csvUploaded', suspendWhenHidden=FALSE)
-
+  outputOptions(output, 'fileUploaded', suspendWhenHidden=FALSE)
+  outputOptions(output, 'gbifSearched', suspendWhenHidden=FALSE)
 })

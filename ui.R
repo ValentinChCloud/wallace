@@ -7,36 +7,24 @@ shinyUI(fluidPage(
   
   sidebarLayout(
     sidebarPanel(
-      ## Input to get GBIF data based on genus species names
-      textInput("gbifName", label = "Enter scientific name of species", value = ''),
-      actionButton("goName", "Submit name"),
-      
-      ## Input upload a CSV file
-      fileInput("csvInput", label = "Upload Occurrence CSV"),
-      
-      ## Conditionals are set such that you have to either run a gbif
-      ## search or upload a file to get the rest of these options
-      
-      ## Map points button
-      conditionalPanel("input.goName || output.csvUploaded",
+      conditionalPanel("!output.fileUploaded",
+                       textInput("gbifName", label = "Enter scientific name of species", value = ''),
+                       actionButton("goName", "Submit name")),
+      conditionalPanel("!output.gbifSearched",
+                       fileInput(inputId = "csvInput", label = "Upload Occurrence CSV")),
+      conditionalPanel("output.gbifSearched || output.fileUploaded",
                        actionButton("goMap", "Map points")),
-      
-      ## Predictor variable resolution choice, or input your own rasters
-      conditionalPanel("input.goName || output.csvUploaded",
+      conditionalPanel("output.gbifSearched || output.fileUploaded",
                        selectInput("pred", label = "Choose predictors",
                                    choices = list(" " = " ", "30 arcsec" = "wc30arcsec", "2.5 arcmin" = "2.5arcmin", 
                                                   "5 arcmin" = "wc5arcmin", "10 arcmin" = "wc10arcmin", 
                                                   "Input rasters" = "inp"))),
       conditionalPanel("input.pred == 'inp'",
                        fileInput(inputId = "predInput", label = "Input predictor rasters", multiple = TRUE)),
-      
-      ## Set thinning parameter and spThin button
-      conditionalPanel("input.goName || output.csvUploaded",
+      conditionalPanel("output.gbifSearched || output.fileUploaded",
                        numericInput("thinDist", label = "Thinning distance (km)", value = 25),
                        actionButton("goThin", "Run spThin")),
-      
-      ## Maxent parameters selection buttons and choices (features, regularization, etc)
-      conditionalPanel("input.goName || output.csvUploaded",
+      conditionalPanel("output.gbifSearched || output.fileUploaded",
                        checkboxGroupInput("fcs", label = "Select feature classes", 
                                           choices = list("L" = "L", "LQ" = "LQ", "H" = "H",
                                                          "LQH" = "LQH", "LQHP" = "LQHP", "LQHPT" = "LQHPT")),
@@ -54,12 +42,11 @@ shinyUI(fluidPage(
       tabsetPanel(
         tabPanel("Main",
                  br(),
-                 conditionalPanel("input.goName", textOutput('GBIFtxt')),
-                 conditionalPanel("output.csvUploaded", uiOutput('CSVtxt')),
-                 conditionalPanel("input.goName || output.csvUploaded", textOutput('dataTxt')),
-                 #uiOutput("test"),
-                 #tableOutput("test2"),
+                 conditionalPanel("output.gbifSearched", textOutput('GBIFtxt')),
+                 conditionalPanel("output.fileUploaded", textOutput('CSVtxt')),
+                 conditionalPanel("output.gbifSearched || output.fileUploaded", textOutput('dataTxt')),
                  textOutput("predTxt"),
+                 tableOutput("test1"),
                  conditionalPanel("input.goMap", textOutput('mapText')),
                  conditionalPanel("input.goThin", textOutput('thinText')),
                  conditionalPanel("input.goEval", textOutput('evalTxt')),
