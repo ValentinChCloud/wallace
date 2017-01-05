@@ -260,7 +260,7 @@ shinyUI(tagList(
                                      conditionalPanel("input.tabs == 6",
                                                       h4("Build and Evaluate Niche Model"),
                                                       radioButtons("enmSel", "Modules Available:",
-                                                                   choices = list("BIOCLIM", "Maxent")),
+                                                                   choices = list("BIOCLIM", "Maxent", "GAM")),
                                                       HTML('<hr>'),
                                                       conditionalPanel("input.enmSel == 'Maxent'",
                                                                        div('Module: Maxent', id="mod")),
@@ -292,7 +292,12 @@ shinyUI(tagList(
                                                                                           'Value used to step through regularization multiplier range (e.g. range of 1-3 with step 0.5 results in [1, 1.5, 2, 2.5, 3]).',
                                                                                           placement = 'right', options = list(container = "body"))
                                                       ),
-                                                      conditionalPanel("input.enmSel == 'BIOCLIM' || input.enmSel == 'Maxent'",
+                                                      conditionalPanel("input.enmSel == 'GAM'",
+                                                                       uiOutput('gamVars'),
+                                                                       numericInput('gamDF', label = "Smoothing parameter", value = 4)
+
+                                                      ),
+                                                      conditionalPanel("input.enmSel == 'BIOCLIM' || input.enmSel == 'Maxent' || input.enmSel == 'GAM'",
                                                                        strong("Build and evaluate models"), br(),
                                                                        actionButton("goEval", "Run Models"), br(), br(),
                                                                        downloadButton('downloadEvalcsv', "Download Results CSV")

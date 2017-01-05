@@ -70,3 +70,21 @@ comp6_maxentMod <- function(rms, fcs) {
   output$evalTbl <- DT::renderDataTable({DT::datatable(cbind(res[,1:3], round(res[,4:15], digits=3)))})
   writeLog(paste("> Maxent ran successfully and output evaluation results for", nrow(e@results), "models."))
 }
+
+comp6_gamMod <- function(gamVars, gamDF) {
+
+  dfs <- unlist(lapply(gamVars, FUN = function(x) paste0("s(", x, ", ", gamDF, ")")))
+  f <- as.formula(paste("pa", paste(dfs, collapse = " + "), sep = " ~ "))
+
+  occ.x <- raster::extract(values$preds[[gamVars]], values$modParams$occ.pts)
+  bg.x <- raster::extract(values$preds[[gamVars]], values$modParams$bg.pts)
+  x <- rbind(occ.x, bg.x)
+  gamData <- data.frame(pa=c(rep(1, nrow(values$modParams$occ.pts)), rep(0, nrow(values$modParams$bg.pts))), x)
+
+  res <- gam(f, family = "binomial", data = gamData)
+  values$gamOut <- res
+
+  output$evalTbl <- DT::renderDataTable({DT::datatable(data.frame(variable=gamVars, coefficient=res$coefficients[-1], row.names=NULL))})
+
+  writeLog(paste("> GAM ran successfully."))
+}

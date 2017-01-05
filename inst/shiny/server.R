@@ -449,6 +449,17 @@ shinyServer(function(input, output, session) {
     }
   })
 
+  observe({
+    output$gamVars <- renderUI({
+      if (is.null(values$preds)) return()
+      n <- names(values$preds)
+      predNameList <- setNames(as.list(n), n)
+      checkboxGroupInput("gamVars", label = "Select variables",
+                         choices = predNameList)
+    })
+  })
+
+
   # niche model selection and warnings
   observeEvent(input$goEval, {
     if (is.null(values$predsMsk)) {
@@ -478,6 +489,9 @@ shinyServer(function(input, output, session) {
                                          "Map Prediction" = 'map'))
        shinyjs::enable("downloadEvalPlots")
      }
+    else if (input$enmSel == 'GAM') {
+      comp6_gamMod(input$gamVars, input$gamDF)
+    }
     # switch to Results tab
     updateTabsetPanel(session, 'main', selected = 'Results')
     shinyjs::enable("downloadEvalcsv")
