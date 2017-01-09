@@ -122,8 +122,9 @@ $(document).ready(function () {
 
 <div id="wallace" class="section level2">
 <h2><em>Wallace</em></h2>
-<p><em>Wallace</em> is a modular platform for reproducible modeling of species niches and distributions, written in R with the web app development package <code>shiny</code>. The application guides users through a complete analysis, from the acquisition of data to visualizing model predictions on an interactive map, thus bundling complex workflows into a single, streamlined interface.</p>
-<p><em>Wallace</em> is currently available via Github using <code>devtools::install_github('wallaceEcoMod/wallace')</code>. All development for the project occurs in this repository. You can get <em>Wallace</em> up and running with a few lines of code.</p>
+<p><em>Wallace</em> is a modular platform for reproducible modeling of species niches and distributions, written in R with the web app development package <code>shiny</code>. The application guides users through a complete analysis, from the acquisition of data to visualizing model predictions on an interactive map, thus bundling complex workflows into a single, streamlined interface. Please find the <em>Wallace</em> homepage below. It has links to the development page (Github repository), the official <em>Wallace</em> email, and the <em>Wallace</em> Google Group for discussion and support for the software.</p>
+<p><a href="https://wallaceecomod.github.io/" class="uri">https://wallaceecomod.github.io/</a></p>
+<p><em>Wallace</em> is currently available for installation via the Github development page. You can get <em>Wallace</em> up and running with a few lines of code.</p>
 <pre class="r"><code># if you do not have devtools installed, install it first
 install.packages(&quot;devtools&quot;, repos = &quot;http://cran.us.r-project.org&quot;)
 # install wallace from github
@@ -132,7 +133,7 @@ devtools::install_github(&quot;wallaceEcoMod/wallace&quot;)
 library(wallace)
 # run the user interface
 wallace()</code></pre>
-<p>While the above will get you going, if you want to use the <em>Maxent</em> component, you’ll have to follow a few more steps, which are listed in the documentation at the bottom (i.e., the <code>README.md</code> file) of <a href="https://github.com/wallaceEcoMod/wallace">this page</a>.</p>
+<p>While the above will get you going, if you want to use the <strong><em>Maxent</em></strong> module in Component <strong>Model</strong>, you’ll have to follow a few more steps, which are listed in the documentation at the bottom (i.e., the <code>README.md</code> file) of <a href="https://github.com/wallaceEcoMod/wallace">the Github repository page</a>.</p>
 </div>
 <div id="wallace-is-modular" class="section level2">
 <h2><em>Wallace</em> is <strong>Modular</strong></h2>
@@ -150,14 +151,14 @@ wallace()</code></pre>
 <p>Before getting into how to expand <em>Wallace</em>, let’s work our way through an example workflow. If you have successfully installed <em>Wallace</em> then please follow along, or feel free to ignore us and try things out yourself. If you haven’t been able to get the install to work, then follow us as we go through it in front, and come talk with Jamie or Matt after the workshop. We’ll try to help troubleshoot your installation problems.</p>
 </div>
 <div id="workflow-demo" class="section level2">
-<h2>WORKFLOW DEMO</h2>
+<h2><strong>WORKFLOW DEMO</strong></h2>
 </div>
 <div id="using-the-resulting-.rmd-file-to-reproduce-and-customize-analyses" class="section level2">
 <h2>Using the resulting <code>*.Rmd</code> file to reproduce and customize analyses</h2>
 <p>At any point during the <em>Wallace</em> workflow, users can download a document detailing the session analysis with text and R code. There are multiple formats available, but the <a href="http://rmarkdown.rstudio.com/">RMarkdown</a> format (i.e., <code>*.Rmd</code>) can be run like a script to reproduce the analysis. Users can directly edit this file to customize parts of the analysis that are outside the scope of what <em>Wallace</em> can (currently) do. The other formats (.html, .pdf, .doc) are not executable, but can be shared with colleagues or used for supplemental information for publications, etc.</p>
 </div>
 <div id="customize-.rmd-demo" class="section level2">
-<h2>CUSTOMIZE *.RMD DEMO</h2>
+<h2>**CUSTOMIZE *.RMD DEMO**</h2>
 <div id="using-gams-for-modeling" class="section level3">
 <h3>Using GAMs for modeling</h3>
 <p>As an example of the utility of the <code>*.Rmd</code> format, let’s imagine that you want to use a <strong>generalized addative model</strong> as an additional SDM approach. Looking through the <code>*.Rmd</code> file, we can find the <strong>code chunk</strong> (in the parlance of RMarkdown, a block of code embedded within the text) where we run our SDM, and add a new code chunk to run a GAM (and preferably, some text explaining what you’re doing for reference).</p>
@@ -191,7 +192,7 @@ conditionalPanel(&quot;input.enmSel == 'BIOCLIM' || input.enmSel == 'Maxent' || 
                  strong(&quot;Build and evaluate models&quot;), br(),
                  actionButton(&quot;goEval&quot;, &quot;Run Models&quot;), br(), br(),
                  downloadButton('downloadEvalcsv', &quot;Download Results CSV&quot;))</code></pre>
-<p>Now let’s add to <code>server.R</code>.</p>
+<p>Now let’s add the checkbox input ui and gam module function call to <code>server.R</code>. The checkbox input is specified here because it needs the names of the variables integrated into the the workflow in Component <strong>Obtain Environmental Data</strong>, and the information can only be passed on the server side.</p>
 <pre class="r"><code># Define the uiOutput (ui side) with a renderUI() function (server side). This is executed within an observe() because it's a reactive function (see shiny documentation for more details). (around line 452)
 observe({
   output$gamVars &lt;- renderUI({
@@ -210,7 +211,7 @@ observeEvent(input$goEval, {
     comp6_gamMod(input$gamVars, input$gamDF)
   }
 }</code></pre>
-<p>Finally, we will write the function to run the GAMs in <code>mods_comp6.R</code>.</p>
+<p>Finally, we will write the function to run the GAMs and plot a results table in the “Results” tab in <code>mods_comp6.R</code>.</p>
 <pre class="r"><code>comp6_gamMod &lt;- function(gamVars, gamDF) {
 
   # take the list of variables input and turn it into a formula with all variable names
@@ -241,7 +242,7 @@ observeEvent(input$goEval, {
 <div id="congratulations" class="section level2">
 <h2>Congratulations</h2>
 <p>You’ve added a module. The module building process will likely require testing and troubleshooting, but referencing other functional modules will give you tips on how to make everything work the way you want it to.</p>
-<p>If you’ve built a functional model and you think it’s neat, please submit a pull request so that the <em>Wallace</em> team can consider adding it to the official version. You can also make your own versions of <em>Wallace</em> as you see fit – it’s open and free.</p>
+<p>If you’ve built a functional model and you think it’s neat, please submit a pull request so that the <em>Wallace</em> team can consider adding it to the official version. You can also make your own versions of <em>Wallace</em> as you see fit – it’s open and free (license GPL3). Hope you enjoyed this short tutorial.</p>
 </div>
 
 

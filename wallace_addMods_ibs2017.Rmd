@@ -9,9 +9,11 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## *Wallace*
 
-*Wallace* is a modular platform for reproducible modeling of species niches and distributions, written in R with the web app development package `shiny`. The application guides users through a complete analysis, from the acquisition of data to visualizing model predictions on an interactive map, thus bundling complex workflows into a single, streamlined interface.
+*Wallace* is a modular platform for reproducible modeling of species niches and distributions, written in R with the web app development package `shiny`. The application guides users through a complete analysis, from the acquisition of data to visualizing model predictions on an interactive map, thus bundling complex workflows into a single, streamlined interface. Please find the *Wallace* homepage below. It has links to the development page (Github repository), the official *Wallace* email, and the *Wallace* Google Group for discussion and support for the software.
 
-*Wallace* is currently available via Github using `devtools::install_github('wallaceEcoMod/wallace')`. All development for the project occurs in this repository. You can get *Wallace* up and running with a few lines of code.
+https://wallaceecomod.github.io/
+
+*Wallace* is currently available for installation via the Github development page. You can get *Wallace* up and running with a few lines of code.
 
 ```{r, eval = FALSE}
 # if you do not have devtools installed, install it first
@@ -24,7 +26,7 @@ library(wallace)
 wallace()
 ```
 
-While the above will get you going, if you want to use the *Maxent* component, you'll have to follow a few more steps, which are listed in the documentation at the bottom (i.e., the `README.md` file) of [this page](https://github.com/wallaceEcoMod/wallace).
+While the above will get you going, if you want to use the ***Maxent*** module in Component **Model**, you'll have to follow a few more steps, which are listed in the documentation at the bottom (i.e., the `README.md` file) of [the Github repository page](https://github.com/wallaceEcoMod/wallace).
 
 ## *Wallace* is **Modular**
 
@@ -93,7 +95,7 @@ conditionalPanel("input.enmSel == 'BIOCLIM' || input.enmSel == 'Maxent' || input
                  downloadButton('downloadEvalcsv', "Download Results CSV"))
 ```
 
-Now let's add to `server.R`.
+Now let's add the checkbox input ui and gam module function call to `server.R`. The checkbox input is specified here because it needs the names of the variables integrated into the the workflow in Component **Obtain Environmental Data**, and the information can only be passed on the server side.
 
 ```{r, eval = FALSE}
 # Define the uiOutput (ui side) with a renderUI() function (server side). This is executed within an observe() because it's a reactive function (see shiny documentation for more details). (around line 452)
@@ -116,7 +118,7 @@ observeEvent(input$goEval, {
 }
 ```
 
-Finally, we will write the function to run the GAMs in `mods_comp6.R`.
+Finally, we will write the function to run the GAMs and plot a results table in the "Results" tab in `mods_comp6.R`.
 
 ```{r, eval = FALSE}
 comp6_gamMod <- function(gamVars, gamDF) {
@@ -150,6 +152,6 @@ comp6_gamMod <- function(gamVars, gamDF) {
 
 You've added a module. The module building process will likely require testing and troubleshooting, but referencing other functional modules will give you tips on how to make everything work the way you want it to.
 
-If you've built a functional model and you think it's neat, please submit a pull request so that the *Wallace* team can consider adding it to the official version. You can also make your own versions of *Wallace* as you see fit -- it's open and free.
+If you've built a functional model and you think it's neat, please submit a pull request so that the *Wallace* team can consider adding it to the official version. You can also make your own versions of *Wallace* as you see fit -- it's open and free (license GPL3). Hope you enjoyed this short tutorial.
 
 
