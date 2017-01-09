@@ -96,7 +96,7 @@ conditionalPanel("input.enmSel == 'BIOCLIM' || input.enmSel == 'Maxent' || input
 Now let's add to `server.R`.
 
 ```{r, eval = FALSE}
-# Define the uiOutput (ui side) with a renderUI() function (server side). This is executed within an observe() because it's a reactive function (see shiny documentation for more details). (around 452)
+# Define the uiOutput (ui side) with a renderUI() function (server side). This is executed within an observe() because it's a reactive function (see shiny documentation for more details). (around line 452)
 observe({
   output$gamVars <- renderUI({
     if (is.null(values$preds)) return()
