@@ -107,7 +107,7 @@ observe({
   })
 })
 
-# Then we need to add the function that runs the GAMs. This goes at the end of the observeEvent() for the goEval button specified in ui.R.
+# Then we need to add the function that runs the GAMs. This goes at the end of the observeEvent() for the goEval button specified in ui.R. (around line 492)
 observeEvent(input$goEval, {
   ...
   else if (input$enmSel == 'GAM') {
