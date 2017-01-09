@@ -44,13 +44,13 @@ Within the `inst/shiny` folder, *Wallace* has a script for each part: `server.R`
 
 Before getting into how to expand *Wallace*, let's work our way through an example workflow. If you have successfully installed *Wallace* then please follow along, or feel free to ignore us and try things out yourself. If you haven't been able to get the install to work, then follow us as we go through it in front, and come talk with Jamie or Matt after the workshop. We'll try to help troubleshoot your installation problems.
 
-## <WORKFLOW DEMO>
+## **WORKFLOW DEMO**
 
 ## Using the resulting `*.Rmd` file to reproduce and customize analyses
 
 At any point during the *Wallace* workflow, users can download a document detailing the session analysis with text and R code. There are multiple formats available, but the [RMarkdown](http://rmarkdown.rstudio.com/) format (i.e., `*.Rmd`) can be run like a script to reproduce the analysis. Users can directly edit this file to customize parts of the analysis that are outside the scope of what *Wallace* can (currently) do. The other formats (.html, .pdf, .doc) are not executable, but can be shared with colleagues or used for supplemental information for publications, etc.
 
-## <CUSTOMIZE *.RMD DEMO>
+## **CUSTOMIZE *.RMD DEMO**
 
 ### Using GAMs for modeling
 
@@ -118,7 +118,7 @@ observeEvent(input$goEval, {
 
 Finally, we will write the function to run the GAMs in `mods_comp6.R`.
 
-```{r}
+```{r, eval = FALSE}
 comp6_gamMod <- function(gamVars, gamDF) {
 
   # take the list of variables input and turn it into a formula with all variable names
