@@ -116,6 +116,40 @@ observeEvent(input$goEval, {
 }
 ```
 
+Finally, we will write the function to run the GAMs in `mods_comp6.R`.
 
+```{r}
+comp6_gamMod <- function(gamVars, gamDF) {
+
+  # take the list of variables input and turn it into a formula with all variable names
+  # wrapped in s() with degrees of freedom equal to gamDF
+  dfs <- unlist(lapply(gamVars, FUN = function(x) paste0("s(", x, ", ", gamDF, ")")))
+  f <- as.formula(paste("pa", paste(dfs, collapse = " + "), sep = " ~ "))
+
+  # extract the predictor variables values at occurrence and background points
+  occ.x <- raster::extract(values$preds[[gamVars]], values$modParams$occ.pts)
+  bg.x <- raster::extract(values$preds[[gamVars]], values$modParams$bg.pts)
+  # rbind them together and make new field for identifying occurrence from background
+  x <- rbind(occ.x, bg.x)
+  gamData <- data.frame(pa=c(rep(1, nrow(values$modParams$occ.pts)), rep(0, nrow(values$modParams$bg.pts))), x)
+
+  # run the GAM
+  res <- gam(f, family = "binomial", data = gamData)
+  # put a copy of the output in the reactiveValues list to retrieve later
+  values$gamOut <- res
+
+  # print summary table to Results tab
+  output$evalTbl <- DT::renderDataTable({DT::datatable(data.frame(variable=gamVars, coefficient=res$coefficients[-1], row.names=NULL))})
+
+  # write log
+  writeLog(paste("> GAM ran successfully."))
+}
+```
+
+## Congratulations
+
+You've added a module. The module building process will likely require testing and troubleshooting, but referencing other functional modules will give you tips on how to make everything work the way you want it to.
+
+If you've built a functional model and you think it's neat, please submit a pull request so that the *Wallace* team can consider adding it to the official version. You can also make your own versions of *Wallace* as you see fit -- it's open and free.
 
 
