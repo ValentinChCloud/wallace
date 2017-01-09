@@ -73,18 +73,20 @@ Each component is nested in a `conditonalPanel()` block, which activates only af
 **IMPORTANT** Make sure to add commas after all `shiny` functions within a `conditionalPanel()` block. Reference the code in `ui.R` for the appropriate syntax.
 
 ```{r, eval = FALSE}
-# First, we add "GAM" to the choices for the radio buttons use to select the modeling method
+# First, we add "GAM" to the choices for the radio buttons use to select the modeling method (around line 260)
 radioButtons("enmSel", "Modules Available:", 
              choices = list("BIOCLIM", "Maxent", "GAM"))
 
 # Next, we'll add functionality specific to GAMs: put a set of checkboxes to specify variables
 # that go into the model ("gamVars"), and numeric input for the smoothing parameter ("gamDF").
 # The function uiOutput() generates ui that is defined in server.R -- we'll see this next.
+# (around line 295)
 conditionalPanel("input.enmSel == 'GAM'",
                  uiOutput('gamVars'),
                  numericInput('gamDF', label = "Smoothing parameter", value = 4))
 
 # Lastly, add GAMs to the conditional statement that generates the button that runs the models
+# (around line 300)
 conditionalPanel("input.enmSel == 'BIOCLIM' || input.enmSel == 'Maxent' || input.enmSel == 'GAM'",
                  strong("Build and evaluate models"), br(),
                  actionButton("goEval", "Run Models"), br(), br(),
@@ -94,7 +96,7 @@ conditionalPanel("input.enmSel == 'BIOCLIM' || input.enmSel == 'Maxent' || input
 Now let's add to `server.R`.
 
 ```{r, eval = FALSE}
-# Define the uiOutput (ui side) with a renderUI() function (server side). This is executed within an observe() because it's a reactive function (see shiny documentation for more details).
+# Define the uiOutput (ui side) with a renderUI() function (server side). This is executed within an observe() because it's a reactive function (see shiny documentation for more details). (around 452)
 observe({
   output$gamVars <- renderUI({
     if (is.null(values$preds)) return()
