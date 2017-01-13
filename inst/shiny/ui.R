@@ -33,7 +33,7 @@ shinyUI(tagList(
                                                       HTML('<hr>'),
                                                       conditionalPanel('input.occSel == "db"',
                                                                        uiTop('Query Database', 'spocc', 'Interface to Species Occurrence Data Sources'),
-                                                                       getDbOccsUI('one'),
+                                                                       queryDB_UI('one'),
                                                                        actionButton("goName", "Search DB"),
                                                                        br(), br(),
                                                                        downloadButton('dlDbOccs', "Download DB Occurrences"),
@@ -42,14 +42,7 @@ shinyUI(tagList(
                                                       conditionalPanel("input.occSel == 'user'",
                                                                        div('Module: User-specified Occurrences', id="mod"),
                                                                        HTML('<hr>'),
-                                                                       fileInput("userCSV", label = "Upload Occurrence CSV")),
-                                                      conditionalPanel("input.occSel == 'db'",
-                                                                       span("spocc", id = "rpkg"), "references", br(),
-                                                                       div('Developers: Scott Chamberlain, Karthik Ram, Ted Hart', id="pkgDes"),
-                                                                       a("CRAN", href = "http://cran.r-project.org/web/packages/spocc/index.html", target = "_blank"),
-                                                                       " | ",
-                                                                       a("documentation", href = "https://cran.r-project.org/web/packages/spocc/spocc.pdf", target = "_blank")
-                                                      )
+                                                                       fileInput("userCSV", label = "Upload Occurrence CSV"))
                                      ),
                                      # tab 2 ####
                                      conditionalPanel("input.tabs == 2",
