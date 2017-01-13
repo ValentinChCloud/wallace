@@ -2,6 +2,25 @@
 ## Define functions
 ## -------------------------------------------------------------------- ##
 
+uiTop <- function(modName, modPkg, pkgDes, modInsert) {
+  list(div(paste('Module:',modName), id="mod"),
+       # span('via', id="pkgDes"),
+       span(modPkg, id="rpkg"),
+       span(paste(':', pkgDes), id="pkgDes"),
+       br(),
+       HTML('<hr>'))
+}
+
+uiBottom <- function(modName, authors) {
+  list(HTML('<hr>'),
+       span(modName, id = "rpkg"), "references", br(),
+       div(paste('Developers:', authors), id="pkgDes"),
+       a("CRAN", href = file.path("http://cran.r-project.org/web/packages", modName, "index.html"), target = "_blank"),
+       " | ",
+       a("documentation", href = file.path("https://cran.r-project.org/web/packages", modName, paste0(modName, ".pdf")), target = "_blank")
+  )
+}
+
 rasCols <- c("#2c7bb6", "#abd9e9", "#ffffbf", "#fdae61", "#d7191c")
 
 reverseLabels <- function(..., reverse_order = FALSE) {

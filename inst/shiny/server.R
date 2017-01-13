@@ -72,13 +72,13 @@ shinyServer(function(input, output, session) {
   curWD <- getwd()
 
   # create map
-  map <- leaflet() %>% setView(0, 0, zoom = 2) %>% addProviderTiles('Esri.WorldTopoMap')
-  output$map <- renderLeaflet(map)
+  m <- leaflet() %>% setView(0, 0, zoom = 2) %>% addProviderTiles('Esri.WorldTopoMap')
+  output$m <- renderLeaflet(m)
 
   # make map proxy to make further changes to existing map
-  proxy <- leafletProxy("map")
+  map <- leafletProxy("m")
   observe({
-    proxy %>% addProviderTiles(input$bmap)
+    map %>% addProviderTiles(input$bmap)
   })
 
 
@@ -94,7 +94,7 @@ shinyServer(function(input, output, session) {
       if (input$occSel == 'user') gtext$cur_mod <- "gtext_comp1_userOccs.Rmd"
       # switch to Map tab
       # updateTabsetPanel(session, 'main', selected = 'Map')
-      proxy %>% clearControls()
+      map %>% clearControls()
     }
   })
 
@@ -142,13 +142,13 @@ shinyServer(function(input, output, session) {
       # if Module: Select Points, populate guidance text and select legend
       if (input$procOccSel == 'selpts') {
         gtext$cur_mod <- "gtext_comp2_selectLocs.Rmd"
-        proxy %>% addLegend("topright", colors = c('red','yellow'),
+        map %>% addLegend("topright", colors = c('red','yellow'),
                             title = "Occ Records", labels = c('original', 'selected'),
                             opacity = 1, layerId = 'selLegend') %>%
           removeControl('thinLegend') %>% clearImages()
         # if points are already selected, plot the original occs in red and the selected ones with yellow fill
         if (!is.null(values$ptsSel)) {
-          proxy %>%
+          map %>%
             map_plotLocs(values$origOccs, clearShapes=FALSE) %>%
             map_plotLocs(values$ptsSel, fillColor='yellow', fillOpacity=1, clearShapes=FALSE, clearMarkers=FALSE) %>%
             zoom2Occs(values$origOccs)
@@ -156,14 +156,14 @@ shinyServer(function(input, output, session) {
       }
       if (input$procOccSel == 'spthin') {
         gtext$cur_mod <- "gtext_comp2_spatialThin.Rmd"
-        proxy %>% addLegend("topright", colors = c('red', 'blue'),
+        map %>% addLegend("topright", colors = c('red', 'blue'),
                             title = "Occ Records", labels = c('retained', 'removed'),
                             opacity = 1, layerId = 'thinLegend') %>%
           removeControl('selLegend') %>% clearImages() %>% clearShapes()
         if (!is.null(values$ptsSel)) {
-          proxy %>% map_plotLocs(values$ptsSel)
+          map %>% map_plotLocs(values$ptsSel)
           if (!is.null(values$prethinned)) {
-            proxy %>% addCircleMarkers(data = values$prethinned, lat = ~latitude, lng = ~longitude,
+            map %>% addCircleMarkers(data = values$prethinned, lat = ~latitude, lng = ~longitude,
                                        radius = 5, color = 'red', fillColor = 'blue',
                                        fillOpacity = 1, weight = 2, popup = ~pop,
                                        group = 'comp2') %>%
@@ -193,8 +193,8 @@ shinyServer(function(input, output, session) {
 
       values$mapClick <- lonlat
       values$polyPts1 <- isolate(rbind(values$polyPts1, lonlat))
-      proxy %>% removeShape("poly1")
-      proxy %>% addPolygons(values$polyPts1[,1], values$polyPts1[,2],
+      map %>% removeShape("poly1")
+      map %>% addPolygons(values$polyPts1[,1], values$polyPts1[,2],
                             layerId='poly1', fill=FALSE, weight=3, color='green')
     }
   })
@@ -207,7 +207,7 @@ shinyServer(function(input, output, session) {
       colors <- RColorBrewer::brewer.pal(numPolys, 'Set1')
       for (i in 1:numPolys) {
         curPoly <- curPolys[i][[1]]@Polygons[[1]]@coords
-        proxy %>% addPolygons(curPoly[,1], curPoly[,2], weight=3, color=colors[i])
+        map %>% addPolygons(curPoly[,1], curPoly[,2], weight=3, color=colors[i])
       }
     }
   })
@@ -248,7 +248,7 @@ shinyServer(function(input, output, session) {
       x <- paste('> RESET localities dataset back to', nrow(values$origOccs), 'records.')
       isolate(writeLog(x))
     }
-    proxy %>% zoom2Occs(values$origOccs) %>% map_plotLocs(values$origOccs)
+    map %>% zoom2Occs(values$origOccs) %>% map_plotLocs(values$origOccs)
   })
 
   # Module Spatial Thin
@@ -277,8 +277,8 @@ shinyServer(function(input, output, session) {
       # switch to Map tab
       updateTabsetPanel(session, 'main', selected = 'Map')
       # plot pts
-      if (!is.null(values$df)) proxy %>% map_plotLocs(values$df)
-      proxy %>% clearControls() %>% clearShapes()
+      if (!is.null(values$df)) map %>% map_plotLocs(values$df)
+      map %>% clearControls() %>% clearShapes()
     }
   })
 
@@ -326,8 +326,8 @@ shinyServer(function(input, output, session) {
       # switch to Map tab
       updateTabsetPanel(session, 'main', selected = 'Map')
       # plot pts
-      if (!is.null(values$df)) proxy %>% map_plotLocs(values$df)
-      proxy %>% clearControls()
+      if (!is.null(values$df)) map %>% map_plotLocs(values$df)
+      map %>% clearControls()
     }
   })
 
@@ -383,8 +383,8 @@ shinyServer(function(input, output, session) {
       # switch to Map tab
       updateTabsetPanel(session, 'main', selected = 'Map')
       # plot pts
-      if (!is.null(values$df)) proxy %>% map_plotLocs(values$df)
-      proxy  %>% clearControls() %>% clearShapes()
+      if (!is.null(values$df)) map %>% map_plotLocs(values$df)
+      map  %>% clearControls() %>% clearShapes()
     }
   })
 
@@ -412,7 +412,7 @@ shinyServer(function(input, output, session) {
       return()
     }
     values$partSel2 <- input$partSel2  # save it to values or else it disappears
-    comp5_setPartitions(values$partSel2, input$kfolds, input$aggFact, proxy)
+    comp5_setPartitions(values$partSel2, input$kfolds, input$aggFact, map)
     shinyjs::enable("downloadPart")
 
 
@@ -442,8 +442,8 @@ shinyServer(function(input, output, session) {
       if (input$enmSel == 'BIOCLIM') gtext$cur_mod <- "gtext_comp6_bioclim.Rmd"
       if (input$enmSel == 'Maxent') gtext$cur_mod <- "gtext_comp6_maxent.Rmd"
       # plots pts
-      if (!is.null(values$df)) proxy %>% map_plotLocs(values$df)
-      proxy %>% clearControls() %>% clearShapes()
+      if (!is.null(values$df)) map %>% map_plotLocs(values$df)
+      map %>% clearControls() %>% clearShapes()
     }
   })
 
@@ -507,21 +507,21 @@ shinyServer(function(input, output, session) {
       if (input$visSel == 'bcEnvel') gtext$cur_mod <- "gtext_comp7_bcPlots.Rmd"
       if (input$visSel == 'mxEval') gtext$cur_mod <- "gtext_comp7_mxEvalPlots.Rmd"
       # plot pts
-      if (!is.null(values$df)) proxy %>% map_plotLocs(values$df, clearImages=FALSE)
-      proxy %>% clearControls() %>% clearShapes()
+      if (!is.null(values$df)) map %>% map_plotLocs(values$df, clearImages=FALSE)
+      map %>% clearControls() %>% clearShapes()
     }
   })
 
   observe({
     if (is.null(values$df)) return()
     if (input$tabs == 7) {
-      proxy %>% removeControl('r2Legend')
+      map %>% removeControl('r2Legend')
       # if (!is.null(values$leg1)) {
-      #   proxy %>% addLegend("topright", pal = values$leg1$pal, title = "Predicted Suitability",
+      #   map %>% addLegend("topright", pal = values$leg1$pal, title = "Predicted Suitability",
       #                       values = values$leg1$rasVals, layerId = 'r1Legend', labFormat = reverseLabels(reverse_order=TRUE))
       # }
-      proxy %>% showGroup('r1')
-      proxy %>% hideGroup('r2')
+      map %>% showGroup('r1')
+      map %>% hideGroup('r2')
     }
   })
 
@@ -569,7 +569,7 @@ shinyServer(function(input, output, session) {
 
   # Module Plot Prediction
   observeEvent(input$plotPred, {
-    comp7_mapPred(input$modelSelPlotStudyExt, input$predForm, input$predThresh, proxy)
+    comp7_mapPred(input$modelSelPlotStudyExt, input$predForm, input$predThresh, map)
     # switch to Results tab
     updateTabsetPanel(session, 'main', selected = 'Map')
     if (input$enmSel == "Maxent") {
@@ -673,8 +673,8 @@ shinyServer(function(input, output, session) {
       # switch to Map tab
       updateTabsetPanel(session, 'main', selected = 'Map')
       # plot pts
-      if (!is.null(values$df)) proxy %>% map_plotLocs(values$df, clearImages=FALSE)
-      proxy %>% clearControls() %>% clearShapes()
+      if (!is.null(values$df)) map %>% map_plotLocs(values$df, clearImages=FALSE)
+      map %>% clearControls() %>% clearShapes()
     }
   })
 
@@ -682,13 +682,13 @@ shinyServer(function(input, output, session) {
   observe({
     if (input$tabs == 8) {
       if (is.null(values$df)) return()
-      proxy %>% removeControl('r1Legend')
+      map %>% removeControl('r1Legend')
       # if (!is.null(values$leg2)) {
-      #   proxy %>% addLegend("topright", pal = values$leg2$pal, title = "Predicted Suitability",
+      #   map %>% addLegend("topright", pal = values$leg2$pal, title = "Predicted Suitability",
       #                       values = values$leg2$rasVals, layerId = 'r2Legend', labFormat = reverseLabels(reverse_order=TRUE))
       # }
-      proxy %>% showGroup('r2')
-      proxy %>% hideGroup('r1')
+      map %>% showGroup('r2')
+      map %>% hideGroup('r1')
       if (!is.null(values$poly2)) return()  # if sel pj ext poly selected, don't allow more drawing
       if (is.null(input$map_click)) return()
       lonlat <- c(input$map_click$lng, input$map_click$lat)
@@ -700,8 +700,8 @@ shinyServer(function(input, output, session) {
 
       values$mapClick <- lonlat
       values$polyPts2 <- isolate(rbind(values$polyPts2, lonlat))
-      proxy %>% removeShape("poly2")
-      proxy %>% addPolygons(values$polyPts2[,1], values$polyPts2[,2],
+      map %>% removeShape("poly2")
+      map %>% addPolygons(values$polyPts2[,1], values$polyPts2[,2],
                             layerId='poly2', fill=FALSE, weight=4, color='red')
     }
   })
@@ -714,9 +714,9 @@ shinyServer(function(input, output, session) {
     values$pjArea <- NULL
     values$mess <- NULL
     values$polyPts2 <- NULL
-    proxy %>% clearShapes()
-    proxy %>% removeImage('r2')
-    proxy %>% removeControl('r2Legend')
+    map %>% clearShapes()
+    map %>% removeImage('r2')
+    map %>% removeControl('r2Legend')
 
     writeLog('> RESET projection extent.')
   })
