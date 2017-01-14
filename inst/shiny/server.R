@@ -100,8 +100,8 @@ shinyServer(function(input, output, session) {
 
   # module GBIF
   observeEvent(input$goName, {
-    if (input$spName == "") return()
-    getDbOccs(input$spName, input$occNum)
+    dbOccs <- callModule(getDbOccs, 'one', map)
+    # getDbOccs(input$spName, input$occNum)
     if (!is.null(values$df)) {shinyjs::enable("dlDbOccs")}
   })
 

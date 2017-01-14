@@ -1,6 +1,12 @@
 #' @imports shiny
 #'
 
+source("funcs/functions.R", local = TRUE)
+# load modules
+for (f in list.files('./modules')) {
+  source(file.path('modules', f), local=TRUE)
+}
+
 # Define UI for application
 shinyUI(tagList(
   shinyjs::useShinyjs(),
