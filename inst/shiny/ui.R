@@ -39,7 +39,7 @@ shinyUI(tagList(
                                                       HTML('<hr>'),
                                                       conditionalPanel('input.occSel == "db"',
                                                                        uiTop('Query Database', 'spocc', 'Interface to Species Occurrence Data Sources'),
-                                                                       queryDB_UI('one'),
+                                                                       queryDB_UI('c1_queryDB'),
                                                                        actionButton("goName", "Search DB"),
                                                                        br(), br(),
                                                                        downloadButton('dlDbOccs', "Download DB Occurrences"),
@@ -48,7 +48,7 @@ shinyUI(tagList(
                                                       conditionalPanel("input.occSel == 'user'",
                                                                        div('Module: User-specified Occurrences', id="mod"),
                                                                        HTML('<hr>'),
-                                                                       fileInput("userCSV", label = "Upload Occurrence CSV"))
+                                                                       userOccs_UI('c1_userOccs'))
                                      ),
                                      # tab 2 ####
                                      conditionalPanel("input.tabs == 2",

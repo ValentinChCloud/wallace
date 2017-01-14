@@ -1,3 +1,8 @@
+#' documentation
+#'
+#'
+#'
+#'
 
 queryDB_UI <- function(id) {
   ns <- NS(id)
@@ -16,6 +21,10 @@ queryDB <- function(input, output, session, map) {
   if (input$spName == "") return()
 
   getDBoccs <- reactive({
+
+    # record spName
+    values$spName <- input$spName
+
     # figure out how many separate names (components of scientific name) were entered
     nameSplit <- length(unlist(strsplit(input$spName, " ")))
     # if two names not entered, throw error and return
@@ -55,9 +64,7 @@ queryDB <- function(input, output, session, map) {
   })
 
 
-  # # record spName and dbMod in values
-  # values$spName <- input$spName
-  # values$dbMod <- input$occDb
+
   # # create tag to signal db search
   # values$mod_db <- TRUE
 
@@ -136,6 +143,18 @@ queryDB <- function(input, output, session, map) {
 
   # MAPPING
   map %>% zoom2Occs(formatDBoccs()) %>% map_plotLocs(formatDBoccs())
+
+  if (length(names(formatDBoccs())) >= 7) {
+    options <- list(autoWidth = TRUE, columnDefs = list(list(width = '40%', targets = 7)),
+                    scrollX=TRUE, scrollY=400)
+  } else {
+    options <- list()
+  }
+
+  # render the GBIF records data table
+  output$occTbl <- DT::renderDataTable(
+    formatDBoccs() %>% dplyr::select(-origID, -pop), options = options
+    )
 
   return(formatDBoccs)
 }

@@ -100,28 +100,15 @@ shinyServer(function(input, output, session) {
 
   # module GBIF
   observeEvent(input$goName, {
-    dbOccs <- callModule(queryDB, 'one', map)
+    dbOccs <- callModule(queryDB, 'c1_queryDB', map)
     # getDbOccs(input$spName, input$occNum)
     if (!is.null(dbOccs())) {shinyjs::enable("dlDbOccs")}
+    print(dbOccs())
   })
 
   # module userOccs
-  observe({
-    if (is.null(input$userCSV)) return()  # exit if userCSV not specifed
-    isolate({getUserOccs(input$userCSV)})
-  })
-
-  # render the GBIF records data table
-  observe({
-    if (is.null(values$df)) return()
-    if (length(names(values$df)) >= 7) {
-      options <- list(autoWidth = TRUE, columnDefs = list(list(width = '40%', targets = 7)),
-                      scrollX=TRUE, scrollY=400)
-    } else {
-      options <- list()
-    }
-    output$occTbl <- DT::renderDataTable({DT::datatable(values$df[, -which(names(values$df) %in% c('origID', 'pop'))], options = options)})
-  })
+  dbOccs <- callModule(userOccs, 'c1_userOccs', map)
+  # isolate({getUserOccs(input$userCSV)})
 
   # handle downloading of original GBIF records after cleaning
   output$dlDbOccs <- downloadHandler(
