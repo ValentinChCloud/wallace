@@ -99,14 +99,18 @@ shinyServer(function(input, output, session) {
   })
 
   # module GBIF
-
-  dbOccs <- callModule(queryDB, 'c1_queryDB', map)
+  observeEvent(input$goName, {
+    dbOccs <- callModule(queryDB, 'c1_queryDB', map)
+    print(dbOccs())
+  })
   # getDbOccs(input$spName, input$occNum)
-  if (!is.null(dbOccs())) {shinyjs::enable("dlDbOccs")}
-  print(dbOccs())
+
 
   # module userOccs
-  dbOccs <- callModule(userOccs, 'c1_userOccs', map)
+  observe({
+    dbOccs <- callModule(userOccs, 'c1_userOccs', map)
+  })
+
   # isolate({getUserOccs(input$userCSV)})
 
   # handle downloading of original GBIF records after cleaning
