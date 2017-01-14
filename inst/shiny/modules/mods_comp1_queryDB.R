@@ -158,6 +158,8 @@ queryDB <- function(input, output, session, map) {
       formatDBoccs() %>% dplyr::select(-origID, -pop), options = options
     )
 
+    shinyjs::enable("dlDbOccs")
+
     return(formatDBoccs)
   })
 }
