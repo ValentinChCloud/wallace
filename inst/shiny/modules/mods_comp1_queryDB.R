@@ -48,8 +48,8 @@ queryDB <- function(input, output, session, map) {
     # get number of original rows
     nrecs <- nrow(d)
 
-    writeLog('> Total', input$occDb, 'records for', input$spName, 'returned [', nrecs,
-    '] out of [', nrows, '] total (limit ', input$occNum, ').')
+    writeLog(paste('> Total', input$occDb, 'records for', input$spName, 'returned [', nrecs,
+    '] out of [', nrows, '] total (limit ', input$occNum, ').'))
 
     return(d)
   })
@@ -112,6 +112,8 @@ queryDB <- function(input, output, session, map) {
     dupsRemoved <- nrow(dc) - nrow(dcNoDups)
     writeLog(paste('Records without coordinates removed [', noCoordsRemoved, '].
                    Duplicated records removed [', dupsRemoved, ']. Remaining records [', nrow(dcNoDups), '].'))
+
+    return(dcNoDups)
   })
 
 
@@ -131,8 +133,9 @@ queryDB <- function(input, output, session, map) {
   #   if (dupsRemNum > 0) {
   #     writeLog(paste("Duplicated records removed [", dupsRemNum, "]: Remaining records [", concat.dupsRem, "]."))
   #   }
+
   # MAPPING
-  proxy %>% zoom2Occs(formatDBoccs()) %>% map_plotLocs(formatDBoccs())
+  map %>% zoom2Occs(formatDBoccs()) %>% map_plotLocs(formatDBoccs())
 
   return(formatDBoccs)
 }
