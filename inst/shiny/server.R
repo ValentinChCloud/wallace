@@ -102,7 +102,7 @@ shinyServer(function(input, output, session) {
   observeEvent(input$goName, {
     dbOccs <- callModule(getDbOccs, 'one', map)
     # getDbOccs(input$spName, input$occNum)
-    if (!is.null(values$df)) {shinyjs::enable("dlDbOccs")}
+    if (!is.null(dbOccs())) {shinyjs::enable("dlDbOccs")}
   })
 
   # module userOccs
