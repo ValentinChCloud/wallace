@@ -24,7 +24,7 @@ queryDB <- function(input, output, session, map) {
   getDBoccs <- reactive({
 
     # record spName
-    values$spName <- input$spName
+    ls$spName <- input$spName
 
     # figure out how many separate names (components of scientific name) were entered
     nameSplit <- length(unlist(strsplit(input$spName, " ")))
@@ -36,21 +36,23 @@ queryDB <- function(input, output, session, map) {
 
     writeLog(paste("... Searching", input$occDb, "..."))
     # query database
-    q <- spocc::occ(input$spName, input$occDb, limit=input$occNum)
+    # q <- spocc::occ(input$spName, input$occDb, limit=input$occNum)
 
     # if species not found, print message to log box and return
-    if (q[[input$occDb]]$meta$found == 0) {
-      writeLog(paste('! No records found for ', input$spName, ". Please check the spelling."))
-      values$df <- NULL  # reset df
-      shinyjs::disable("dlDbOccs")
-      return()
-    }
+    # if (q[[input$occDb]]$meta$found == 0) {
+    #   writeLog(paste('! No records found for ', input$spName, ". Please check the spelling."))
+    #   values$df <- NULL  # reset df
+    #   shinyjs::disable("dlDbOccs")
+    #   return()
+    # }
 
     # get total number of records found in database
-    nrows <- q[[input$occDb]]$meta$found
+    # nrows <- q[[input$occDb]]$meta$found
+    nrows = 5
 
     # extract occurrence tibble
-    d <- q[[input$occDb]]$data[[formatSpName(input$spName)]]
+    # d <- q[[input$occDb]]$data[[formatSpName(input$spName)]]
+    d <- np
     # make sure latitude and longitude are numeric (sometimes they aren't)
     d$latitude <- as.numeric(d$latitude)
     d$longitude <- as.numeric(d$longitude)
@@ -118,8 +120,8 @@ queryDB <- function(input, output, session, map) {
 
     noCoordsRemoved <- nrow(d) - nrow(dc)
     dupsRemoved <- nrow(dc) - nrow(dcNoDups)
-    writeLog(paste('Records without coordinates removed [', noCoordsRemoved, '].
-                     Duplicated records removed [', dupsRemoved, ']. Remaining records [', nrow(dcNoDups), '].'))
+    isolate(writeLog(paste('Records without coordinates removed [', noCoordsRemoved, '].
+                     Duplicated records removed [', dupsRemoved, ']. Remaining records [', nrow(dcNoDups), '].')))
 
     return(dcNoDups)
   })
@@ -145,18 +147,23 @@ queryDB <- function(input, output, session, map) {
   # MAPPING
   map %>% zoom2Occs(formatDBoccs()) %>% map_plotLocs(formatDBoccs())
 
-  if (length(names(formatDBoccs())) >= 7) {
+
+
+  return(formatDBoccs)
+}
+
+
+comp1_queryDB <- function() {
+  # module GBIF
+  observeEvent(input$goName, {
+    dbOccs <- callModule(queryDB, 'c1_queryDB', map)
+    # render the GBIF records data table
     options <- list(autoWidth = TRUE, columnDefs = list(list(width = '40%', targets = 7)),
                     scrollX=TRUE, scrollY=400)
-  } else {
-    options <- list()
-  }
-
-  # render the GBIF records data table
-  output$occTbl <- DT::renderDataTable(
-    formatDBoccs() %>% dplyr::select(-origID, -pop), options = options
-  )
-
-  shinyjs::enable("dlDbOccs")
-  return(formatDBoccs)
+    output$occTbl <- DT::renderDataTable(
+      dbOccs() %>% dplyr::select(-origID, -pop), options = options
+    )
+    ls$dbOccs <- dbOccs()
+    shinyjs::toggleState("dlDbOccs")
+  })
 }

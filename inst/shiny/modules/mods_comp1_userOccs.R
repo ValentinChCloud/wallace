@@ -7,7 +7,7 @@
 userOccs_UI <- function(id) {
   ns <- NS(id)
   tagList(
-    fileInput("userCSV", label = "Upload Occurrence CSV")
+    fileInput(ns("userCSV"), label = "Upload Occurrence CSV")
   )
 }
 
@@ -17,19 +17,19 @@ userOccs <- function(input, output, session, map) {
 
   formatUserOccs <- reactive({
     csv <- read.csv(input$userCSV$datapath)
+    ## NEED TO DO PROPER FUNCTION STOP HERE TO EXIT FUNCTION
     if (!all(c('name', 'longitude', 'latitude') %in% names(csv))) {
       isolate({writeLog('<font color="red"><b>! ERROR</b></font> : Please input CSV file with columns "name", "longitude", "latitude".')})
       return()
     }
 
     # subset to only occs, not backg, and just fields that match df
-    values$spName <- as.character(csv$name[1])  # get species name
-    uoccs <- csv[csv[,1] == values$spName,]  # limit to records with this name
-
+    ls$spName <- as.character(csv$name[1])  # get species name
+    uoccs <- csv[csv[,1] == ls$spName,]  # limit to records with this name
     # subset to just records with latitude and longitude
     uoccs <- uoccs %>% dplyr::filter(!is.na(latitude) & !is.na(longitude))
     if (nrow(uoccs) == 0) {
-      writeLog(paste('<font color="orange"><b>! WARNING</b></font> : No records with coordinates found in', input$userCSV$name, "for", values$spName, "."))
+      writeLog(paste('<font color="orange"><b>! WARNING</b></font> : No records with coordinates found in', input$userCSV$name, "for", ls$spName, "."))
       return()
     }
 
@@ -45,7 +45,7 @@ userOccs <- function(input, output, session, map) {
     uoccs$pop <- unlist(apply(uoccs, 1, popUpContent))  # add col for map marker popup text
 
     # origOccs is the unmodified occs, to preserve in comp2 when points are modified
-    # values$df <- values$origOccs <- uoccs
+    # ls$df <- ls$origOccs <- uoccs
 
     return(uoccs)
   })
@@ -54,4 +54,14 @@ userOccs <- function(input, output, session, map) {
   map %>% zoom2Occs(formatUserOccs()) %>% map_plotLocs(formatUserOccs())
 
   return(formatUserOccs)
+}
+
+# module userOccs
+comp1_userOccs <- function() {
+  observe({
+    dbOccs <- callModule(userOccs, 'c1_userOccs', map)
+    if (is.function('dbOccs')) {
+      ls$dbOccs <- dbOccs()
+    }
+  })
 }

@@ -81,6 +81,8 @@ shinyServer(function(input, output, session) {
     map %>% addProviderTiles(input$bmap)
   })
 
+  ls <- reactiveValues()
+
 
 #########################
 ### COMPONENT 1 ####
@@ -98,26 +100,18 @@ shinyServer(function(input, output, session) {
     }
   })
 
-  # module GBIF
-  observeEvent(input$goName, {
-    dbOccs <- callModule(queryDB, 'c1_queryDB', map)
-    print(dbOccs())
-  })
-  # getDbOccs(input$spName, input$occNum)
+  # module query database
+  comp1_queryDB()
 
+  # module user occurrences
+  comp1_userOccs()
 
-  # module userOccs
-  observe({
-    dbOccs <- callModule(userOccs, 'c1_userOccs', map)
-  })
-
-  # isolate({getUserOccs(input$userCSV)})
-
+  ## NEED TO
   # handle downloading of original GBIF records after cleaning
   output$dlDbOccs <- downloadHandler(
-    filename = function() {paste0(nameAbbr(values$df.orig), '_', input$occDb, ".csv")},
+    filename = function() {paste0(nameAbbr(ls$spName), ".csv")},
     content = function(file) {
-      write.csv(values$df.orig, file, row.names=FALSE)
+      write.csv(ls$dbOccs, file, row.names=FALSE)
     }
   )
 
