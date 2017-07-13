@@ -1,18 +1,24 @@
+# Basic testings (you can build other scripts in the same folder and name different things,
+# like: test module 1)
 context("basic")
 
+# Load the package
 library(RSelenium)
 library(testthat)
 
+# Connect to the app (open another rstudio and run_wallace())
 remDr <- remoteDriver()
 remDr$open(silent = TRUE)
 appURL <- "http://127.0.0.1:6268"
 
+# Here we test if the app opens and matches the title to Wallace
 test_that("can connect to app", {  
   remDr$navigate(appURL)
   appTitle <- remDr$getTitle()[[1]]
   expect_equal(appTitle, "Wallace")  
 })
 
+# Here if the app contains the correct tabs and their respective names.
 test_that("Tabs are present", {  
   webElems <- remDr$findElements("id", "tabs")
   appCtrlLabels <- sapply(webElems, function(x){x$getElementText()})
@@ -26,4 +32,5 @@ test_that("Tabs are present", {
   expect_equal(appCtrlLabels[7], "6 Model")  
   expect_equal(appCtrlLabels[8], "Session Code")  
 })
+# Close the connection
 remDr$close()
