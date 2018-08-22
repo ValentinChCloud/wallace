@@ -1,4 +1,3 @@
-
 mxEvalPlots_UI <- function(id) {
   ns <- NS(id)
   tagList(
@@ -9,6 +8,7 @@ mxEvalPlots_UI <- function(id) {
                 selected = 'avg.test.AUC'),
     HTML('<hr>'),
     strong("Download Maxent evaluation plot (.png)"), br(), br(),
+	actionButton(ns('dlMxEvalPlot_G'), "Get in Galaxy"),
     downloadButton(ns('dlMxEvalPlot'), "Download")
   )
 }
@@ -27,7 +27,21 @@ mxEvalPlots_MOD <- function(input, output, session, rvs) {
     # record for RMD
     rvs$mxEvalSel <- input$mxEvalSel
     rvs$comp7 <- isolate(c(rvs$comp7, 'mxEval'))
-
+    
+	
+	# handle downloads for Maxent Evaluation Plots png in Galaxy
+	observeEvent(input$dlMxEvalPlot_G ,{
+	owd <- setwd(tempdir())
+	on.exit(setwd(owd))
+	name<-paste0(spName(), "_maxent_eval_plot.png")
+	filename<-gsub(" ","_",name,fixed = TRUE)
+	png(file=filename)
+	evalPlot(rvs$modRes, input$mxEvalSel)
+        dev.off()
+	
+	command<-paste('python /opt/python/galaxy-export/export.py',filename,'auto')
+	system(command)
+	})
     # handle downloads for Maxent Evaluation Plots png
     output$dlMxEvalPlot <- downloadHandler(
       filename = function() {paste0(spName(), "_maxent_eval_plot.png")},

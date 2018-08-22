@@ -1,4 +1,3 @@
-
 bcPlots_UI <- function(id) {
   ns <- NS(id)
   tagList(
@@ -8,6 +7,7 @@ bcPlots_UI <- function(id) {
     numericInput(ns("bcProb"), "Set threshold", value = 0.9, min = 0.75, max = 1, step = 0.05),
     HTML('<hr>'),
     strong("Download envelope plot (.png)"), br(), br(),
+    actionButton(ns('dlBcPlot_G'), "Get in Galaxy"),
     downloadButton(ns('dlBcPlot'), "Download")
   )
 }
@@ -24,6 +24,15 @@ bcPlots_MOD <- function(input, output, session, rvs) {
     rvs$bcPlotsPar <- list(bc1=input$bc1, bc2=input$bc2, p=input$bcProb)
     rvs$comp7 <- isolate(c(rvs$comp7, 'bcPlot'))
     
+    # handle downloads for BIOCLIM Plots png
+    observeEvent(input$dlBcPlot_G, {
+      png_name <- paste0("/var/log/shiny-server/",gsub(" ","_",spName(),fixed = TRUE),"_bc_plot.png")
+      png(file=png_name)
+      bc.plot(rvs$mods[[1]], a = input$bc1, b = input$bc2, p = input$bcProb)
+      dev.off()
+      command<-paste("python /opt/python/galaxy-export/export.py",png_name,"auto")
+      system(command)
+    })
     # handle downloads for BIOCLIM Plots png
     output$dlBcPlot <- downloadHandler(
       filename = function() {paste0(spName(), "_bc_plot.png")},

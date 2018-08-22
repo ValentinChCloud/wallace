@@ -390,7 +390,7 @@ shinyServer(function(input, output, session) {
 
   galaxyEnvs <- callModule(galaxyEnvs_MOD, 'c3_galaxyEnvs', rvs)
 
-  observeEvent(input$goGalaxyrEnvs, {
+  observeEvent(input$goGalaxyEnvs, {
     rvs$envs <- galaxyEnvs()
     req(rvs$occs)
 
