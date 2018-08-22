@@ -46,7 +46,7 @@ galaxyEnvs_MOD <- function(input, output, session, rvs) {
     command=paste('python /import_csv_user.py',input$userEnvs)
     system(command)
     path=paste('/import/',input$userEnvs,sep="")
-    raster<-read.table(path)
+    raster<-readTIFF(path)
     # record for RMD
     rvs$userEnvs <- raster
     
